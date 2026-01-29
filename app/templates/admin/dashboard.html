@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-item active">Dashboard</a>
+  <a href="{{ url_for('admin.partners_list') }}" class="nav-item">Partners</a>
+  <a href="{{ url_for('admin.leads_list') }}" class="nav-item">Leads</a>
+  <a href="{{ url_for('admin.payments_list') }}" class="nav-item">Payments</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Admin Overview</h2>
+<div class="card-grid">
+  <div class="card slide-up">
+    <h3>Total Partners</h3>
+    <p class="metric">{{ total_partners }}</p>
+  </div>
+  <div class="card slide-up delay-1">
+    <h3>Total Leads</h3>
+    <p class="metric">{{ lead_metrics.total_leads }}</p>
+  </div>
+  <div class="card slide-up delay-2">
+    <h3>Conversion Rate</h3>
+    <p class="metric">{{ '%.1f'|format(lead_metrics.conversion_rate) }}%</p>
+  </div>
+  <div class="card slide-up delay-3">
+    <h3>Pending Payments</h3>
+    <p class="metric status-pending">
+      {{ payment_metrics.pending_count }} (₹{{ '%.0f'|format(payment_metrics.pending_amount) }})
+    </p>
+  </div>
+</div>
+
+<div class="card slide-up delay-1">
+  <h3>Partner-wise Performance</h3>
+  <div class="table-wrapper">
+    {% if partner_performance %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Partner</th>
+          <th>Total Leads</th>
+          <th>Converted</th>
+          <th>Conversion %</th>
+          <th>Pending ₹</th>
+          <th>Released ₹</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in partner_performance %}
+        {% set conv_rate = (row.converted_leads / row.total_leads * 100) if row.total_leads else 0 %}
+        <tr>
+          <td>{{ row.partner_name }}</td>
+          <td>{{ row.total_leads }}</td>
+          <td class="status-success">{{ row.converted_leads }}</td>
+          <td>{{ '%.1f'|format(conv_rate) }}%</td>
+          <td>{{ '%.0f'|format(row.pending_amount) }}</td>
+          <td>{{ '%.0f'|format(row.released_amount) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No partner activity yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card slide-up delay-2">
+  <h3>Monthly Lead Trend (last 6 months)</h3>
+  <div class="table-wrapper">
+    {% if lead_metrics.monthly_trend %}
+    <table class="table table-compact">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Total Leads</th>
+          <th>Converted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in lead_metrics.monthly_trend %}
+        <tr>
+          <td>{{ row.ym }}</td>
+          <td>{{ row.total }}</td>
+          <td class="status-success">{{ row.converted }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No leads yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

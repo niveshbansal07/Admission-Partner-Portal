@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Partners | Admin{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('admin.partners_list') }}" class="nav-item active">Partners</a>
+  <a href="{{ url_for('admin.leads_list') }}" class="nav-item">Leads</a>
+  <a href="{{ url_for('admin.payments_list') }}" class="nav-item">Payments</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Partners</h2>
+
+<div class="card slide-up">
+  <form method="get" class="form-inline">
+    <label>
+      Status
+      <select name="status">
+        <option value="">All</option>
+        <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+    </label>
+    <button class="btn primary" type="submit">Filter</button>
+  </form>
+</div>
+
+<div class="card slide-up delay-1">
+  <h3>Create Partner</h3>
+  <form method="post" action="{{ url_for('admin.partners_create') }}" class="form-grid">
+    <label>
+      Name
+      <input type="text" name="name" required />
+    </label>
+    <label>
+      Mobile
+      <input type="text" name="mobile" required />
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" required />
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" />
+    </label>
+    <label>
+      Status
+      <select name="status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </label>
+    <label>
+      Shop / Institute
+      <input type="text" name="shop_name" />
+    </label>
+    <label>
+      Profession
+      <input type="text" name="profession" />
+    </label>
+    <label class="span-2">
+      Address
+      <textarea name="address" rows="2"></textarea>
+    </label>
+    <div class="form-actions span-2">
+      <button class="btn primary" type="submit">Create Partner</button>
+    </div>
+  </form>
+</div>
+
+<div class="card slide-up delay-2">
+  <h3>Partner List</h3>
+  <div class="table-wrapper">
+    {% if partners %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Shop</th>
+          <th>Profession</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in partners %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td>{{ p.mobile }}</td>
+          <td>{{ p.email or '—' }}</td>
+          <td>
+            <span
+              class="badge {% if p.status=='active' %}badge-success{% else %}badge-muted{% endif %}"
+              >{{ p.status|capitalize }}</span
+            >
+          </td>
+          <td>{{ p.shop_name or '—' }}</td>
+          <td>{{ p.profession or '—' }}</td>
+          <td>
+            <details class="row-details">
+              <summary class="btn btn-small">Manage</summary>
+              <div class="details-panel">
+                <form
+                  method="post"
+                  action="{{ url_for('admin.partners_update', partner_id=p.id) }}"
+                  class="form-compact"
+                >
+                  <input type="hidden" name="id" value="{{ p.id }}" />
+                  <label>
+                    Name
+                    <input type="text" name="name" value="{{ p.name }}" />
+                  </label>
+                  <label>
+                    Email
+                    <input type="email" name="email" value="{{ p.email }}" />
+                  </label>
+                  <label>
+                    Status
+                    <select name="status">
+                      <option value="active" {% if p.status=='active' %}selected{% endif %}
+                        >Active</option
+                      >
+                      <option value="inactive" {% if p.status=='inactive' %}selected{% endif %}
+                        >Inactive</option
+                      >
+                    </select>
+                  </label>
+                  <label>
+                    Shop
+                    <input type="text" name="shop_name" value="{{ p.shop_name }}" />
+                  </label>
+                  <label>
+                    Profession
+                    <input type="text" name="profession" value="{{ p.profession }}" />
+                  </label>
+                  <label>
+                    Address
+                    <textarea name="address" rows="2">{{ p.address }}</textarea>
+                  </label>
+                  <div class="form-actions">
+                    <button class="btn primary btn-small" type="submit">Save</button>
+                  </div>
+                </form>
+
+                <form
+                  method="post"
+                  action="{{ url_for('admin.partners_status', partner_id=p.id) }}"
+                  class="form-inline"
+                >
+                  <input type="hidden" name="status" value="{{ 'inactive' if p.status=='active' else 'active' }}" />
+                  <button class="btn btn-small" type="submit">
+                    {{ 'Deactivate' if p.status=='active' else 'Activate' }}
+                  </button>
+                </form>
+
+                <form
+                  method="post"
+                  action="{{ url_for('admin.partners_delete', partner_id=p.id) }}"
+                  class="form-inline"
+                  onsubmit="return confirm('Soft delete this partner?');"
+                >
+                  <button class="btn btn-small danger" type="submit">Delete</button>
+                </form>
+              </div>
+            </details>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No partners yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="pagination">
+    {% if has_prev %}
+    <a
+      href="{{ url_for('admin.partners_list', page=page-1, status=status_filter) }}"
+      class="page-link"
+      >&laquo; Prev</a
+    >
+    {% endif %}
+    <span class="page-current">Page {{ page }}</span>
+    {% if has_next %}
+    <a
+      href="{{ url_for('admin.partners_list', page=page+1, status=status_filter) }}"
+      class="page-link"
+      >Next &raquo;</a
+    >
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

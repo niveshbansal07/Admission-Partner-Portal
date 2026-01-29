@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Partner{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('partner.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('partner.leads_list') }}" class="nav-item">My Leads</a>
+  <a href="{{ url_for('partner.payments_list') }}" class="nav-item">Payments</a>
+  <a href="{{ url_for('partner.reports') }}" class="nav-item">Reports</a>
+  <a href="{{ url_for('partner.profile') }}" class="nav-item active">Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">My Profile</h2>
+
+<div class="card slide-up">
+  <form method="post" action="{{ url_for('partner.profile_update') }}" class="form-grid">
+    <label>
+      Name
+      <input type="text" name="name" value="{{ partner.name }}" required />
+    </label>
+    <label>
+      Shop / Institute
+      <input type="text" name="shop_name" value="{{ partner.shop_name }}" />
+    </label>
+    <label>
+      Profession
+      <input type="text" name="profession" value="{{ partner.profession }}" />
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" value="{{ partner.email }}" />
+    </label>
+    <label class="span-2">
+      Address
+      <textarea name="address" rows="3">{{ partner.address }}</textarea>
+    </label>
+    <div class="form-note span-2">
+      Mobile and password cannot be changed from this screen.
+    </div>
+    <div class="form-actions span-2">
+      <button class="btn primary" type="submit">Save Changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

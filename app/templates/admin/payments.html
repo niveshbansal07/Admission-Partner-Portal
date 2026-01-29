@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Payments | Admin{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('admin.partners_list') }}" class="nav-item">Partners</a>
+  <a href="{{ url_for('admin.leads_list') }}" class="nav-item">Leads</a>
+  <a href="{{ url_for('admin.payments_list') }}" class="nav-item active">Payments</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Payments</h2>
+
+<div class="card slide-up">
+  <form method="get" class="form-inline form-inline-wrap">
+    <label>
+      Partner
+      <select name="partner_id">
+        <option value="">All</option>
+        {% for p in partners %}
+        <option value="{{ p.id }}" {% if partner_id==p.id %}selected{% endif %}>
+          {{ p.name }} ({{ p.mobile }})
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Status
+      <select name="status">
+        <option value="">All</option>
+        <option value="Pending" {% if status=='Pending' %}selected{% endif %}>Pending</option>
+        <option value="Released" {% if status=='Released' %}selected{% endif %}>Released</option>
+      </select>
+    </label>
+    <label>
+      Due from
+      <input type="date" name="due_from" value="{{ due_from or '' }}" />
+    </label>
+    <label>
+      Due to
+      <input type="date" name="due_to" value="{{ due_to or '' }}" />
+    </label>
+    <button class="btn primary" type="submit">Filter</button>
+  </form>
+</div>
+
+<div class="card slide-up delay-1">
+  <div class="table-wrapper">
+    {% if payments %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Due Date</th>
+          <th>Partner</th>
+          <th>Lead</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Released Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pay in payments %}
+        <tr>
+          <td>{{ pay.due_date }}</td>
+          <td>{{ pay.partner_id }}</td>
+          <td>{{ pay.lead_id }}</td>
+          <td>₹{{ '%.0f'|format(pay.amount) }}</td>
+          <td>
+            {% if pay.status=='Pending' %}
+            <span class="badge badge-muted">Pending</span>
+            {% else %}
+            <span class="badge badge-success">Released</span>
+            {% endif %}
+          </td>
+          <td>{{ pay.released_date or '—' }}</td>
+          <td>
+            {% if pay.status=='Pending' %}
+            <form
+              method="post"
+              action="{{ url_for('admin.payments_release', payment_id=pay.id) }}"
+              onsubmit="return confirm('Mark payment as released?');"
+            >
+              <button class="btn btn-small primary" type="submit">Release</button>
+            </form>
+            {% else %}
+            <span class="muted">Immutable</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No payments found.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Partner Dashboard{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('partner.dashboard') }}" class="nav-item active">Dashboard</a>
+  <a href="{{ url_for('partner.leads_list') }}" class="nav-item">My Leads</a>
+  <a href="{{ url_for('partner.payments_list') }}" class="nav-item">Payments</a>
+  <a href="{{ url_for('partner.reports') }}" class="nav-item">Reports</a>
+  <a href="{{ url_for('partner.profile') }}" class="nav-item">Profile</a>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Welcome, Partner</h2>
+<div class="card-grid">
+  <div class="card slide-up">
+    <h3>Total Leads</h3>
+    <p class="metric">{{ lead_metrics.total_leads }}</p>
+  </div>
+  <div class="card slide-up delay-1">
+    <h3>Converted</h3>
+    <p class="metric status-success">{{ lead_metrics.converted_leads }}</p>
+  </div>
+  <div class="card slide-up delay-2">
+    <h3>Conversion Rate</h3>
+    <p class="metric">{{ '%.1f'|format(lead_metrics.conversion_rate) }}%</p>
+  </div>
+  <div class="card slide-up delay-3">
+    <h3>Pending Payments</h3>
+    <p class="metric status-pending">
+      {{ payment_metrics.pending_count }} (₹{{ '%.0f'|format(payment_metrics.pending_amount) }})
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+

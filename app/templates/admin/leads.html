@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Leads | Admin{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('admin.partners_list') }}" class="nav-item">Partners</a>
+  <a href="{{ url_for('admin.leads_list') }}" class="nav-item active">Leads</a>
+  <a href="{{ url_for('admin.payments_list') }}" class="nav-item">Payments</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Leads</h2>
+
+<div class="card slide-up">
+  <form method="get" class="form-inline form-inline-wrap">
+    <label>
+      Partner
+      <select name="partner_id">
+        <option value="">All</option>
+        {% for p in partners %}
+        <option value="{{ p.id }}" {% if partner_id==p.id %}selected{% endif %}>
+          {{ p.name }} ({{ p.mobile }})
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Status
+      <select name="status">
+        <option value="">All</option>
+        {% for s in ['Pending','In-Process','Converted','Not Converted'] %}
+        <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      From
+      <input type="date" name="date_from" value="{{ date_from or '' }}" />
+    </label>
+    <label>
+      To
+      <input type="date" name="date_to" value="{{ date_to or '' }}" />
+    </label>
+    <button class="btn primary" type="submit">Filter</button>
+  </form>
+</div>
+
+<div class="card slide-up delay-1">
+  <div class="table-wrapper">
+    {% if leads %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Created</th>
+          <th>Partner</th>
+          <th>Student</th>
+          <th>Mobile</th>
+          <th>Current</th>
+          <th>Status</th>
+          <th>Conversion Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leads %}
+        <tr>
+          <td>{{ l.created_at }}</td>
+          <td>{{ l.partner_id }}</td>
+          <td>{{ l.student_name }}</td>
+          <td>{{ l.mobile }}</td>
+          <td>{{ l.current_status }}</td>
+          <td>
+            {% set s = l.lead_status %}
+            <span
+              class="badge
+              {% if s=='Pending' %}badge-muted
+              {% elif s=='In-Process' %}badge-info
+              {% elif s=='Converted' %}badge-success
+              {% elif s=='Not Converted' %}badge-danger
+              {% endif %}"
+            >
+              {{ s }}
+            </span>
+          </td>
+          <td>{{ l.conversion_date or '—' }}</td>
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('admin.leads_update_status', lead_id=l.id) }}"
+              class="form-inline"
+            >
+              <select name="status">
+                {% for s in ['Pending','In-Process','Converted','Not Converted'] %}
+                <option value="{{ s }}" {% if l.lead_status==s %}selected{% endif %}
+                  >{{ s }}</option
+                >
+                {% endfor %}
+              </select>
+              <button class="btn btn-small primary" type="submit">Update</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No leads found.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

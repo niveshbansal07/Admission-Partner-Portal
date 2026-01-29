@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}My Leads | Partner{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('partner.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('partner.leads_list') }}" class="nav-item active">My Leads</a>
+  <a href="{{ url_for('partner.payments_list') }}" class="nav-item">Payments</a>
+  <a href="{{ url_for('partner.reports') }}" class="nav-item">Reports</a>
+  <a href="{{ url_for('partner.profile') }}" class="nav-item">Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">My Leads</h2>
+
+<div class="card slide-up">
+  <h3>Create Lead</h3>
+  <form method="post" action="{{ url_for('partner.leads_create') }}" class="form-grid">
+    <label>
+      Student Name
+      <input type="text" name="student_name" required />
+    </label>
+    <label>
+      Mobile
+      <input type="text" name="mobile" required />
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" />
+    </label>
+    <label>
+      Current Status
+      <select name="current_status">
+        <option value="Study">Study</option>
+        <option value="Job">Job</option>
+        <option value="Drop">Drop</option>
+      </select>
+    </label>
+    <label class="span-2">
+      Address
+      <textarea name="address" rows="2"></textarea>
+    </label>
+    <div class="form-actions span-2">
+      <button class="btn primary" type="submit">Create Lead</button>
+    </div>
+  </form>
+  {% if duplicate %}
+  <div class="form-note warning span-2">
+    A lead with the same mobile already exists. The new lead was still created.
+  </div>
+  {% endif %}
+</div>
+
+<div class="card slide-up delay-1">
+  <h3>Recent Leads</h3>
+  <div class="table-wrapper">
+    {% if leads %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Created</th>
+          <th>Student</th>
+          <th>Mobile</th>
+          <th>Email</th>
+          <th>Current</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leads %}
+        <tr>
+          <td>{{ l.created_at }}</td>
+          <td>{{ l.student_name }}</td>
+          <td>{{ l.mobile }}</td>
+          <td>{{ l.email or '—' }}</td>
+          <td>{{ l.current_status }}</td>
+          <td>
+            {% set s = l.lead_status %}
+            <span
+              class="badge
+              {% if s=='Pending' %}badge-muted
+              {% elif s=='In-Process' %}badge-info
+              {% elif s=='Converted' %}badge-success
+              {% elif s=='Not Converted' %}badge-danger
+              {% endif %}"
+            >
+              {{ s }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">You have not created any leads yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | Partner{% endblock %}
+
+{% block sidebar %}
+<nav class="nav">
+  <a href="{{ url_for('partner.dashboard') }}" class="nav-item">Dashboard</a>
+  <a href="{{ url_for('partner.leads_list') }}" class="nav-item">My Leads</a>
+  <a href="{{ url_for('partner.payments_list') }}" class="nav-item">Payments</a>
+  <a href="{{ url_for('partner.reports') }}" class="nav-item active">Reports</a>
+  <a href="{{ url_for('partner.profile') }}" class="nav-item">Profile</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Performance Overview</h2>
+
+<div class="card-grid">
+  <div class="card slide-up">
+    <h3>Total Leads</h3>
+    <p class="metric">{{ lead_metrics.total_leads }}</p>
+  </div>
+  <div class="card slide-up delay-1">
+    <h3>Converted Leads</h3>
+    <p class="metric status-success">{{ lead_metrics.converted_leads }}</p>
+  </div>
+  <div class="card slide-up delay-2">
+    <h3>Conversion Rate</h3>
+    <p class="metric">{{ '%.1f'|format(lead_metrics.conversion_rate) }}%</p>
+  </div>
+  <div class="card slide-up delay-3">
+    <h3>Pending Payments</h3>
+    <p class="metric status-pending">
+      {{ payment_metrics.pending_count }} (₹{{ '%.0f'|format(payment_metrics.pending_amount) }})
+    </p>
+  </div>
+  <div class="card slide-up delay-3">
+    <h3>Released Payments</h3>
+    <p class="metric status-success">
+      {{ payment_metrics.released_count }} (₹{{ '%.0f'|format(payment_metrics.released_amount) }})
+    </p>
+  </div>
+</div>
+
+<div class="card slide-up delay-2">
+  <h3>Monthly Lead Trend (last 6 months)</h3>
+  <div class="table-wrapper">
+    {% if lead_metrics.monthly_trend %}
+    <table class="table table-compact">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Total Leads</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in lead_metrics.monthly_trend %}
+        <tr>
+          <td>{{ row.ym }}</td>
+          <td>{{ row.total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="table-empty">No leads yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
